@@ -1,0 +1,171 @@
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fraunces", "Iowan Old Style", ui-serif, serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #f5f1e8;
+  --color-ink: #0b0c10;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Weather / time-of-day tokens                                           */
+/* Each state carries its own accent + overlay tint. This is the one      */
+/* signature move the whole page is built around: pick a time of day and  */
+/* the light itself changes, not just a label somewhere.                  */
+/* ---------------------------------------------------------------------- */
+:root {
+  --accent: #ffb703;
+  --accent-soft: rgba(255, 183, 3, 0.35);
+  --overlay-from: rgba(20, 14, 30, 0.55);
+  --overlay-via: rgba(20, 14, 30, 0.15);
+}
+
+[data-weather="dawn"] {
+  --accent: #ff8a65;
+  --accent-soft: rgba(255, 138, 101, 0.35);
+  --overlay-from: rgba(60, 30, 40, 0.5);
+  --overlay-via: rgba(80, 50, 60, 0.1);
+}
+
+[data-weather="noon"] {
+  --accent: #ffb703;
+  --accent-soft: rgba(255, 183, 3, 0.35);
+  --overlay-from: rgba(10, 20, 30, 0.4);
+  --overlay-via: rgba(10, 20, 30, 0.08);
+}
+
+[data-weather="evening"] {
+  --accent: #8e7cff;
+  --accent-soft: rgba(142, 124, 255, 0.35);
+  --overlay-from: rgba(10, 8, 25, 0.65);
+  --overlay-via: rgba(10, 8, 25, 0.25);
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-ink);
+  color: var(--color-paper);
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Fixed background: scene-wide.png on landscape, scene-tall.png on       */
+/* portrait — swapped by orientation, never stretched.                    */
+/* ---------------------------------------------------------------------- */
+.hero-bg {
+  background-image: url("/bg/scene-wide.png");
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.3s ease;
+}
+
+@media (orientation: portrait) {
+  .hero-bg {
+    background-image: url("/bg/scene-tall.png");
+  }
+}
+
+.hero-overlay {
+  background: linear-gradient(
+    to bottom,
+    var(--overlay-from) 0%,
+    var(--overlay-via) 45%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  transition: background 0.6s ease;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Grain: inline feTurbulence data-URI, blended over everything at low    */
+/* opacity so the photo doesn't look like a flat digital poster.          */
+/* ---------------------------------------------------------------------- */
+.grain-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.18;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Glass recipe for the player                                            */
+/* ---------------------------------------------------------------------- */
+.glass {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.15),
+    rgba(255, 255, 255, 0.055)
+  );
+  backdrop-filter: blur(24px) saturate(1.7);
+  -webkit-backdrop-filter: blur(24px) saturate(1.7);
+  box-shadow:
+    8px 16px 48px -12px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Vinyl spin                                                              */
+/* ---------------------------------------------------------------------- */
+@keyframes vinyl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vinyl-spin {
+  animation: vinyl-spin 8s linear infinite;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Seek bar                                                                */
+/* ---------------------------------------------------------------------- */
+.seek-track {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.seek-fill {
+  background: var(--accent);
+  box-shadow: 0 0 8px 1px var(--accent-soft);
+}
+
+.seek-knob {
+  background: var(--paper, #fff);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.seek-hit:hover .seek-knob,
+.seek-hit:focus-visible .seek-knob {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Safe-area helpers for the four fixed corners                           */
+/* ---------------------------------------------------------------------- */
+/* Applied as padding (not offsets) so they compose cleanly with elements
+   that are already edge-pinned via `inset-0` / `inset-x-0`. */
+.safe-t {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+.safe-b {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+.safe-l {
+  padding-left: max(1rem, env(safe-area-inset-left));
+}
+.safe-r {
+  padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-spin {
+    animation: none;
+  }
+  * {
+    transition: none !important;
+  }
+}
